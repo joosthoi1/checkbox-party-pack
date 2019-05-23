@@ -12,4 +12,4 @@ Now go down to the load and config function and add your program to the function
   
 Make sure you use tk.Toplevel() and not tk.Tk() to avoid issues with things like variables in the buttons etc.  
   
-#2 You might need to put gridcreation.py in each game folder seperatly, or put it in you python's lib folder
+# You might need to put gridcreation.py in each game folder seperatly, or put it in you python's lib folder
