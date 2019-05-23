@@ -1,8 +1,10 @@
 import tkinter as tk
 import tetris.tetris as tetris
 import minesweeper.minesweeper as minesweeper
+import snake.snake as snake
 from functools import partial
-#import json
+import json
+
 
 class main:
     def __init__(self):
@@ -14,11 +16,13 @@ class main:
         self.mainframe(0,0)
         self.verticalspacer(0,1)
         self.mainframe(0,2)
+        self.verticalspacer(0,3)
+        self.mainframe(0,4)
         self.horizontalspacer(1,0)
-        self.mainframe(2,0)
         self.mainframe(2,2)
         self.imagelabel(0, 'Tetris', "tetris\\Tetrislogo.png")
         self.imagelabel(1, 'Minesweeper', "tetris\\Tetrislogo.png")
+        self.imagelabel(2, 'Snake', "tetris\\Tetrislogo.png")
 
 
         self.root.mainloop()
@@ -52,13 +56,22 @@ class main:
 
     def load(self, name):
         if name == 'Tetris':
+            self.root.destroy()
             tetris.tetris()
+            main()
         if name == 'Minesweeper':
-            minesweeper1 = minesweeper.minesweeper()
+            self.root.destroy()
+            minesweeper.minesweeper()
+            main()
+        if name == 'Snake':
+            self.root.destroy()
+            snake.snake()
+            main()
     def config(self, name):
         if name == 'Minesweeper':
-
-            minesweeper1 = minesweeper.config()
+            minesweeper.config()
+        if name == 'Snake':
+            snake.config()
 
 
 if __name__ == '__main__':

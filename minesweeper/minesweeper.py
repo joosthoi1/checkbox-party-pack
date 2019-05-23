@@ -10,13 +10,9 @@ class minesweeper:
             contents = json.loads(file.read())
         self.bombnumber = contents['bombs']
         self.dead = '0'
-        if __name__ == '__main__':
-            root=tk.Tk()
-        else:
-            root= tk.Toplevel()
         x = contents['x']
         y = contents['y']
-        self.grid2 = grid.grid(x, y, text = '  ', xoffset = 1, yoffset = 1, command=self.checkUncicked, root= root)
+        self.grid2 = grid.grid(x, y, text = '  ', xoffset = 1, yoffset = 1, command=self.checkUncicked)
         self.flaglist = []
         for i in range(10000):
             self.flaglist.append(0)
@@ -123,6 +119,7 @@ class minesweeper:
                 if len(checkedlist) == self.grid2.numberx*self.grid2.numbery-len(self.bomblist) and self. dead != '1':
                     self.dead = '2'
         if again:
+#            self.grid2.root.update()
             self.checkUncicked()
         if self.flag == 'on':
             for i in range(len(self.grid2.varlist)):
@@ -163,6 +160,7 @@ class minesweeper:
                 self.recreate()
                 break
             if self.dead == '2':
+                self.dead = 0
                 tkm.showinfo('Game Over', 'YOU WIN!!!!')
                 self.recreate()
                 break
@@ -175,7 +173,7 @@ class minesweeper:
             try:
                 self.grid2.root.update()
             except:
-                pass
+                return
 
     def recreate(self):
         self.label2text.set(self.bombnumber)
