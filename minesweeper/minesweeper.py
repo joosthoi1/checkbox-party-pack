@@ -123,7 +123,6 @@ class minesweeper:
                 if len(checkedlist) == self.grid2.numberx*self.grid2.numbery-len(self.bomblist) and self. dead != '1':
                     self.dead = '2'
         if again:
-            self.grid2.root.update()
             self.checkUncicked()
         if self.flag == 'on':
             for i in range(len(self.grid2.varlist)):
