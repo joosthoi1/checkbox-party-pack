@@ -3,6 +3,7 @@ import tetris.tetris as tetris
 import minesweeper.minesweeper as minesweeper
 import imgtocheck.imgtocheck as imgtocheck
 import snake.snake as snake
+import displayboard.displayboard as DisplayBoard
 from functools import partial
 import json
 
@@ -21,10 +22,13 @@ class main:
         self.mainframe(0,4)
         self.horizontalspacer(1,0)
         self.mainframe(2,0)
+        self.verticalspacer(2,1)
+        self.mainframe(2,2)
         self.imagelabel(0, 'Tetris', "tetris\\Tetrislogo.png")
         self.imagelabel(1, 'Minesweeper', "tetris\\Tetrislogo.png")
         self.imagelabel(2, 'Snake', "tetris\\Tetrislogo.png")
         self.imagelabel(3, 'Imgtocheck', "tetris\\Tetrislogo.png")
+        self.imagelabel(4, 'Display Board', "tetris\\Tetrislogo.png")
 
 
         self.root.mainloop()
@@ -48,12 +52,17 @@ class main:
     def imagelabel(self, index, name, image):
         tk.Label(self.framelist[index], text = name, font = ("Helvetica", "16")).pack()
 
+
         self.imglist.append(tk.PhotoImage(file=image))
         tk.Label(self.framelist[index], image = self.imglist[-1]).pack()
 
         innerframe = tk.Frame(self.framelist[index], width=200)
         innerframe.pack()
-        tk.Button(innerframe, text='start', command = partial(self.load, name)).pack(side='left')
+        tk.Button(
+            innerframe,
+            text='start',
+            command = partial(self.load, name)
+        ).pack(side='left')
         tk.Button(innerframe, text='⚙', command = partial(self.config, name)).pack(side='right')
 
     def load(self, name):
@@ -73,6 +82,10 @@ class main:
             self.root.destroy()
             imgtocheck.imgtocheck()
             main()
+        if name == 'Display Board':
+            self.root.destroy()
+            DisplayBoard.board()
+            main()
     def config(self, name):
         if name == 'Minesweeper':
             minesweeper.config()
@@ -80,6 +93,8 @@ class main:
             snake.config()
         if name == 'Imgtocheck':
             imgtocheck.config()
+        if name == 'Display Board':
+            DisplayBoard.config()
 
 
 if __name__ == '__main__':
