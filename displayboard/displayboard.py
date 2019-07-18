@@ -23,6 +23,7 @@ class board:
         self.string = self.contents['text']
         self.color = self.contents['color']
         self.use_random = self.contents['random_color']
+        speed = self.contents['speed']
         self.string += ' '
         self.nextLetter = True
         self.letter = 0
@@ -32,7 +33,7 @@ class board:
             try:
                 self.nextFrame()
                 self.root.update()
-                time.sleep(0.1)
+                time.sleep(speed)
                 self.moveLeft()
             except:
                 break
@@ -108,13 +109,13 @@ class config:
         path = 'displayboard/config.json'
         with open(path) as file:
             self.contents = json.loads(file.read())
-        print(self.contents)
         self.root = tk.Toplevel()
         self.radiovar = tk.IntVar()
         self.redvar = tk.StringVar()
         self.greenvar = tk.StringVar()
         self.bluevar = tk.StringVar()
         self.lengthvar = tk.StringVar()
+        self.speedvar = tk.StringVar()
 
         tk.Label(self.root,text='Text: ').grid(row = 0, column=0,sticky='nw')
         self.textbox = tk.Text(self.root,height=3,width=30)
@@ -130,15 +131,23 @@ class config:
         ).grid(row=1,column=1,sticky='w')
         self.lengthvar.set(self.contents['length'])
 
+        tk.Label(self.root, text='speed (s): ').grid(row=2,column=0,sticky='w')
+        tk.Entry(
+            self.root,
+            textvariable = self.speedvar,
+            width=3
+        ).grid(row=2,column=1,sticky='w')
+        self.speedvar.set(self.contents["speed"])
+
         tk.Radiobutton(
             self.root, text = 'Color: ',variable = self.radiovar,value=1,
             command=self.rainbow_off
-        ).grid(row=2,column=0,sticky='w')
+        ).grid(row=3,column=0,sticky='w')
 
 
 
         self.rgb_frame = tk.Frame(self.root)
-        self.rgb_frame.grid(row=2,column=1,sticky='w')
+        self.rgb_frame.grid(row=3,column=1,sticky='w')
         tk.Label(self.rgb_frame,text='R:').pack(side="left")
         tk.Entry(self.rgb_frame,width=3,textvariable=self.redvar).pack(
             side="left"
@@ -167,7 +176,7 @@ class config:
         tk.Radiobutton(
             self.root, text = 'Rainbow',variable = self.radiovar,value=2,
             command=self.rainbow_on
-        ).grid(row=3,column=0,sticky='w')
+        ).grid(row=4,column=0,sticky='w')
 
         if self.contents['random_color']:
             self.radiovar.set(2)
@@ -179,7 +188,7 @@ class config:
             self.root,
             command=self.done,
             text='done'
-        ).grid(row=4,column=1,sticky='e')
+        ).grid(row=5,column=1,sticky='e')
 
 
         while True:
@@ -214,6 +223,11 @@ class config:
     def done(self):
         contents = {}
         contents['text'] = self.textbox.get('1.0', 'end-1c')
+        try:
+            contents['speed'] = float(self.speedvar.get())
+        except ValueError:
+            tk.messagebox.showwarning(message="Please make sure speed is a float or intenger")
+            return
         if self.lengthvar.get().isdigit():
             contents['length'] = int(self.lengthvar.get())
         else:
