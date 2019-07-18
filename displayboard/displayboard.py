@@ -140,13 +140,24 @@ class config:
         self.rgb_frame = tk.Frame(self.root)
         self.rgb_frame.grid(row=2,column=1,sticky='w')
         tk.Label(self.rgb_frame,text='R:').pack(side="left")
-        tk.Entry(self.rgb_frame,width=3,textvariable=self.redvar).pack(side="left")
+        tk.Entry(self.rgb_frame,width=3,textvariable=self.redvar).pack(
+            side="left"
+        )
         tk.Label(self.rgb_frame,text='G:').pack(side="left")
-        tk.Entry(self.rgb_frame,width=3,textvariable=self.greenvar).pack(side="left")
+        tk.Entry(self.rgb_frame,width=3,textvariable=self.greenvar).pack(
+            side="left"
+        )
         tk.Label(self.rgb_frame,text='B:').pack(side="left")
-        tk.Entry(self.rgb_frame,width=3,textvariable=self.bluevar).pack(side="left")
+        tk.Entry(self.rgb_frame,width=3,textvariable=self.bluevar).pack(
+            side="left"
+        )
         color_button = tk.Checkbutton(self.rgb_frame)
         color_button.pack(side='left')
+        tk.Button(
+            self.rgb_frame,
+            text="Randomize",
+            command=self.randomize
+        ).pack(side='left')
         hex = self.contents['color'][1:]
         rgb = tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
         self.redvar.set(rgb[0])
@@ -187,6 +198,10 @@ class config:
             except tk.TclError:
                 break
 
+    def randomize(self):
+        self.redvar.set(random.randint(0,255))
+        self.greenvar.set(random.randint(0,255))
+        self.bluevar.set(random.randint(0,255))
 
     def rainbow_on(self):
         for i in self.rgb_frame.winfo_children():
