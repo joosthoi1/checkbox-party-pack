@@ -1,1 +1,6 @@
-{"text":"Test sentence!"}
+{
+    "text": "New test sentence!",
+    "length": 20,
+    "color": "#00ffff",
+    "random_color": true
+}

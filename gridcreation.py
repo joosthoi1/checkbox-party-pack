@@ -1,6 +1,9 @@
 import tkinter as tk
 class grid:
-    def __init__(self, numberx, numbery=None, text = '', xoffset = 0, yoffset = 0, command = None, root = None):
+    def __init__(
+        self, numberx, numbery=None, text = '', xoffset = 0, yoffset = 0,
+        command = None, root = None
+    ):
         if not root:
             root = tk.Tk()
         self.xoffset = xoffset
@@ -12,11 +15,21 @@ class grid:
         self.xgrid, self.ygrid = 0, 0
         self.root.title('gridcreation')
 
-        self.coordrost = [[i for i in range(self.numberx*x,self.numberx+self.numberx*x)] for x in range(numbery)]
+        self.coordrost = [
+            [i for i in range(
+                self.numberx*x,self.numberx+self.numberx*x
+                )] for x in range(numbery)
+        ]
 
         for i in range(10000):
             self.varlist.append(tk.IntVar())
-            self.boxlist.append(tk.Checkbutton(self.root, text=self.text, variable=self.varlist[i], command = command))
+            self.boxlist.append(tk.Checkbutton(
+                self.root,
+                text=self.text,
+                variable=self.varlist[i],
+                command = command,
+                highlightthickness=0)
+            )
             row, col = self.ygrid+self.yoffset, self.xgrid + self.xoffset
             self.boxlist[i].grid(row=row, sticky=tk.W, column=col)
             self.boxlist[i].configure(bg='light gray')

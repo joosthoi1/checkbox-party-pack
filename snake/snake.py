@@ -8,7 +8,7 @@ import json
 class snake:
 
     def __init__(self):
-        with open('snake\\config.json') as file:
+        with open('snake/config.json') as file:
             contents = json.loads(file.read())
         x = contents['x']
         y = contents['y']
@@ -129,7 +129,7 @@ class config:
         from functools import partial
 
 
-        with open('snake\\config.json') as file:
+        with open('snake/config.json') as file:
             self.contents = json.loads(file.read())
         self.root = tk.Toplevel()
         self.varx = tk.IntVar()
@@ -175,7 +175,7 @@ class config:
             self.contents['y'] = self.vary.get()
             self.contents['tickspeed'] = self.varticks.get()
             self.contents['deathonwall'] = self.varwall.get()
-            with open('snake\\config.json', 'w') as file:
+            with open('snake/config.json', 'w') as file:
                 file.write(json.dumps(self.contents))
             self.root.destroy()
 

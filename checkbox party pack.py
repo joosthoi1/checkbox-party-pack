@@ -24,11 +24,11 @@ class main:
         self.mainframe(2,0)
         self.verticalspacer(2,1)
         self.mainframe(2,2)
-        self.imagelabel(0, 'Tetris', "tetris\\Tetrislogo.png")
-        self.imagelabel(1, 'Minesweeper', "tetris\\Tetrislogo.png")
-        self.imagelabel(2, 'Snake', "tetris\\Tetrislogo.png")
-        self.imagelabel(3, 'Imgtocheck', "tetris\\Tetrislogo.png")
-        self.imagelabel(4, 'Display Board', "tetris\\Tetrislogo.png")
+        self.imagelabel(0, 'Tetris', "tetris/Tetrislogo.png")
+        self.imagelabel(1, 'Minesweeper', "tetris/Tetrislogo.png")
+        self.imagelabel(2, 'Snake', "tetris/Tetrislogo.png")
+        self.imagelabel(3, 'Imgtocheck', "tetris/Tetrislogo.png")
+        self.imagelabel(4, 'Display Board', "tetris/Tetrislogo.png")
 
 
         self.root.mainloop()

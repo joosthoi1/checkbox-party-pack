@@ -7,7 +7,7 @@ import json
 class imgtocheck:
     def __init__(self):
 
-        with open('imgtocheck\\config.json') as file:
+        with open('imgtocheck/config.json') as file:
             self.contents = json.loads(file.read())
 
         tk.Tk().withdraw()
@@ -33,7 +33,6 @@ class imgtocheck:
         self.downscale()
 
         self.resized = cv2.resize(image, (self.newx, self.newy))  # resizes image to the dimensions formed in downscale
-        cv2.imshow("preview", self.resized)  # shows preview of image
 
         self.grid1 = grid.grid(self.newx - 1, self.newy - 1)  # creates a checkboxgrid, read gridcreation.py for info
         self.grid1.root.title('art')
@@ -107,7 +106,7 @@ class config:
         tk.Button(self.root,text='randomize',command=partial(self.randomize, 'y'),padx=10).grid(row = 1, column=2,sticky='e')
         tk.Button(self.root,text='randomize all',command=partial(self.randomize, 'all')).grid(row = 5, column=0,sticky='w')
 
-        tk.Button(self.root,text='done',command=self.done).grid(row = 4, column=2,sticky='e')
+        tk.Button(self.root,text='done',command=self.done).grid(row = 5, column=2,sticky='e')
         self.root.mainloop()
     def randomize(self, button):
         import random
@@ -128,9 +127,9 @@ class config:
             self.contents['enabled'] = self.varstate.get()
             self.contents['selected'] = self.varselected.get()
             self.contents['color'] = self.varcolor.get()
-            with open('imgtocheck\\config.json', 'w') as file:
+            with open('imgtocheck/config.json', 'w') as file:
                 file.write(json.dumps(self.contents))
             self.root.destroy()
 if __name__ == '__main__':
-    imgtocheck()
-    #config()
+#    imgtocheck()
+    config()

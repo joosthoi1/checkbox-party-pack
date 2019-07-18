@@ -6,7 +6,7 @@ import keyboard
 import json
 class minesweeper:
     def __init__(self):
-        with open('minesweeper\\config.json') as file:
+        with open('minesweeper/config.json') as file:
             contents = json.loads(file.read())
         self.bombnumber = contents['bombs']
         self.dead = '0'
@@ -191,7 +191,7 @@ class config:
         from functools import partial
 
 
-        with open('minesweeper\\config.json') as file:
+        with open('minesweeper/config.json') as file:
             self.contents = json.loads(file.read())
         self.root = tk.Toplevel()
         self.varx = tk.IntVar()
@@ -234,7 +234,7 @@ class config:
             self.contents['x'] = self.varx.get()
             self.contents['y'] = self.vary.get()
             self.contents['bombs'] = self.varbombs.get()
-            with open('minesweeper\\config.json', 'w') as file:
+            with open('minesweeper/config.json', 'w') as file:
                 file.write(json.dumps(self.contents))
             self.root.destroy()
 
