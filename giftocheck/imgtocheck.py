@@ -1,81 +1,55 @@
 from tkinter import filedialog
 import tkinter as tk
 from PIL import Image
-import numpy as np
 import gridcreation as grid
 import json
-
+import numpy as np
+#57, self.grid1.numbery - (8 - 1)
 class imgtocheck:
-    def __init__(self):
-
-        with open('imgtocheck/config.json') as file:
-            self.contents = json.loads(file.read())
-
-        f = tk.Tk()
-        f.withdraw()
-        path =  filedialog.askopenfilename(
-            title = "Select file",filetypes = (
-                ("png files","*.png"), ("jpeg files", ("*.jpg","*.jpeg")),
-                ("gif files","*.gif"), ("all files","*.*")
-            )
-        )
-
-
-        if not path:
-            return
-
-        image = Image.open(path)
-
+    def init(self, image, maxx, maxy):
         self.x = image.size[0]
         self.y = image.size[1]  # gets images x and y values
-        self.maxx, self.maxy = self.contents['x'], self.contents['y']  # maximum amount of checkboxes on x and y axis numbers which I found to be the best fit for a 1080p monitor
+
+        self.maxx, self.maxy = maxx, maxy  # maximum amount of checkboxes on x and y axis numbers which I found to be the best fit for a 1080p monitor
 
         self.downscale()
 
         self.resized = np.array(image.resize((self.newx, self.newy)))  # resizes image to the dimensions formed in downscale
+        return self.hexify()
 
-        self.grid1 = grid.grid(self.newx - 1, self.newy - 1, root = f)  # creates a checkboxgrid, read gridcreation.py for info
-        self.grid1.root.title('art')
-        self.colorin()
-        f.wm_deiconify()
-        self.grid1.root.mainloop()
 
-    def downscale(self):
+    def downscale(self, image=None, max = None):
+        if image:
+            self.x = image.size[0]
+            self.y = image.size[1]
+
         self.newx, self.newy = self.x, self.y
+
+        if max:
+            self.maxx = max[0]
+            self.maxy = max[1]
         while 1:    # loops and changes the y value by 1 and the x value by the relative x/y until it fits in the pre astablished 69x41 area
             if (int(self.newx) <= self.maxx and self.newy <= self.maxy):
                 self.newx = int(self.newx)
                 break
             self.newy -= 1
             self.newx -= self.x/self.y
+        return self.newx, self.newx
 
-    def colorin(self):              # grabs the color of each pixel and modifies the checkboxes to be that color
-        x, y = 1, 1
-        for i in self.grid1.boxlist:
-            mycolor = '#%02x%02x%02x' % (self.resized[y-1][x-1][0], self.resized[y-1][x-1][1], self.resized[y-1][x-1][2])  # converts rgb to hex
-            if list(self.resized[y-1][x-1]) == [0, 0, 0, 0]:
-                mycolor = 'white'
-            self.grid1.boxlist[self.grid1.coords(x, self.grid1.numbery - (y - 1))].configure(bg=mycolor, fg=mycolor,disabledforeground=mycolor)
-            if not self.contents['enabled']:
-                self.grid1.boxlist[self.grid1.coords(x, self.grid1.numbery - (y - 1))].configure(state='disabled')  # disables checkboxes to get more color, remove/comment this line to make them checkable
-            if self.contents['selected']:
-                self.grid1.boxlist[self.grid1.coords(x, self.grid1.numbery - (y - 1))].select()
-            if self.contents['color']:
-                self.grid1.boxlist[self.grid1.coords(x, self.grid1.numbery - (y - 1))].configure(bg=mycolor, fg='black',disabledforeground='black')
-
-#            self.grid1.boxlist[self.grid1.coords(x, self.grid1.numbery-(y-1))].select() #selects checkboxes to get more color, remove/comment this line to make them checkable
-            x += 1
-            if x == self.newx:
-                y += 1
-                x = 1
-            if y == self.newy:
-                break
+    def hexify(self):
+        new_image = []
+        for y in self.resized:
+            new_image.append([])
+            for x in y:
+                mycolor = '#%02x%02x%02x' % (x[0], x[1], x[2])
+                new_image[-1].append(mycolor)
+        return new_image
 
 class config:
     def __init__(self):
         from functools import partial
 
-        with open('imgtocheck/config.json') as file:
+        with open('giftocheck/config.json') as file:
             self.contents = json.loads(file.read())
 
         self.root = tk.Toplevel()
@@ -129,9 +103,6 @@ class config:
             self.contents['enabled'] = self.varstate.get()
             self.contents['selected'] = self.varselected.get()
             self.contents['color'] = self.varcolor.get()
-            with open('imgtocheck/config.json', 'w') as file:
+            with open('giftocheck/config.json', 'w') as file:
                 file.write(json.dumps(self.contents))
             self.root.destroy()
-if __name__ == '__main__':
-    imgtocheck()
-#    config()

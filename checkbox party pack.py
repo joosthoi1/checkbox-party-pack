@@ -4,6 +4,7 @@ import minesweeper.minesweeper as minesweeper
 import imgtocheck.imgtocheck as imgtocheck
 import snake.snake as snake
 import displayboard.displayboard as DisplayBoard
+import giftocheck.giftocheck as giftocheck
 from functools import partial
 import json
 
@@ -11,39 +12,44 @@ import json
 class main:
     def __init__(self):
         self.root = tk.Tk()
+
         self.framelist = []
         self.innerframelist = []
         self.imglist = []
 
         self.mainframe(0,0)
-        self.verticalspacer(0,1)
-        self.mainframe(0,2)
-        self.verticalspacer(0,3)
-        self.mainframe(0,4)
-        self.horizontalspacer(1,0)
+        self.mainframe(1,0)
         self.mainframe(2,0)
-        self.verticalspacer(2,1)
-        self.mainframe(2,2)
+        self.mainframe(0,1)
+        self.mainframe(1,1)
+        self.mainframe(2,1)
+
         self.imagelabel(0, 'Tetris', "tetris/Tetrislogo.png")
         self.imagelabel(1, 'Minesweeper', "tetris/Tetrislogo.png")
         self.imagelabel(2, 'Snake', "tetris/Tetrislogo.png")
         self.imagelabel(3, 'Imgtocheck', "tetris/Tetrislogo.png")
         self.imagelabel(4, 'Display Board', "tetris/Tetrislogo.png")
-
+        self.imagelabel(5, 'Giftocheck', "tetris/Tetrislogo.png")
 
         self.root.mainloop()
 
-    def mainframe(self, row1, col1):
+    def mainframe(self, col, row):
+        col *= 2
+        row *= 2
+        if col and not row:
+            self.verticalspacer(col - 1, row)
+        if row and not col:
+            self.horizontalspacer(col, row - 1)
         self.framelist.append(
         tk.Frame(self.root)
         )
-        self.framelist[-1].grid(row=row1,column=col1)
+        self.framelist[-1].grid(row=row,column=col)
 
-    def verticalspacer(self,row1,col1):
+    def verticalspacer(self,col1,row1):
         self.frame1 = tk.Frame(self.root, width = 20,height= 250)
         self.frame1.grid(row=row1,column=col1)
 
-    def horizontalspacer(self,row1,col1):
+    def horizontalspacer(self,col1,row1):
         self.frame1 = tk.Frame(self.root, width = 400,height= 20)
         self.frame1.grid(row=row1,column=col1)
 
@@ -86,6 +92,10 @@ class main:
             self.root.destroy()
             DisplayBoard.board()
             main()
+        if name == 'Giftocheck':
+            self.root.destroy()
+            giftocheck.giftocheck()
+            main()
     def config(self, name):
         if name == 'Minesweeper':
             minesweeper.config()
@@ -95,6 +105,8 @@ class main:
             imgtocheck.config()
         if name == 'Display Board':
             DisplayBoard.config()
+        if name == 'Giftocheck':
+            giftocheck.config()
 
 
 if __name__ == '__main__':

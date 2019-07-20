@@ -1,15 +1,33 @@
 # checkbox-party-pack  
 launcher for my games  
 images are 290*300    
-  
-If you would like to add your own game thats possible, first you need to add a mainframe on a row a column   
-Now you have to assign an image label to a mainframe index, the index of the mainframe is its place in self.framelist  
-generaly this will be the same index it was when created.
-you can supply your own title and image.
+
+If you would like to add your own game that's possible, simply add a mainframe with x and y arguments.  
+Then, add an imagelabel, you need to add an index, that index is the index where the mainframe is in the list.  
+If you created your game (called the mainframe function) as the second one, the index will be 1 (index starts at 0)  
+Note, you put the imagelabel right under the mainframe call and do it with an index of -1 so it will bind to the previously loaded one:  
+```py
+self.mainframe(2,1)
+self.imagelabel(-1, "Beautiful title", "game/image.png")
+```
+you can supply your own title and image.  
 Now go down to the load and config function and add your program to the functions.  
-  
-  
-#### You might need to put gridcreation.py in each game folder seperatly, or put it in you python's lib folder
+Usually this will be something like this:
+```py
+if name == 'App name':
+    self.root.destroy()
+    ImportName.board()
+    main()
+```
+And:
+```py
+if name == 'App name':
+    ImportName.config()
+```
+note: Make sure to import your application.
+note: name is the name you gave your app in imagelabel
+
+#### You might need to put gridcreation.py in each game folder separately, or put it in you python's lib folder (usually this isn't necessary)
 
 If you want to play this, type next in the command line:
 ```
