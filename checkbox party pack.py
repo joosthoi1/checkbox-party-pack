@@ -7,6 +7,8 @@ import displayboard.displayboard as DisplayBoard
 import giftocheck.giftocheck as giftocheck
 from functools import partial
 import json
+import PIL.Image
+import PIL.ImageTk
 
 
 class main:
@@ -57,9 +59,10 @@ class main:
 
     def imagelabel(self, index, name, image):
         tk.Label(self.framelist[index], text = name, font = ("Helvetica", "16")).pack()
+        im = PIL.Image.open(image)
+        photo = PIL.ImageTk.PhotoImage(im)
 
-
-        self.imglist.append(tk.PhotoImage(file=image))
+        self.imglist.append(photo)
         tk.Label(self.framelist[index], image = self.imglist[-1]).pack()
 
         innerframe = tk.Frame(self.framelist[index], width=200)
