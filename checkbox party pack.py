@@ -14,6 +14,7 @@ import PIL.ImageTk
 class main:
     def __init__(self):
         self.root = tk.Tk()
+        self.add_scrollbar()
 
         self.framelist = []
         self.innerframelist = []
@@ -35,6 +36,9 @@ class main:
 
         self.root.mainloop()
 
+
+
+
     def mainframe(self, col, row):
         col *= 2
         row *= 2
@@ -43,16 +47,16 @@ class main:
         if row and not col:
             self.horizontalspacer(col, row - 1)
         self.framelist.append(
-        tk.Frame(self.root)
+        tk.Frame(self.frame)
         )
         self.framelist[-1].grid(row=row,column=col)
 
     def verticalspacer(self,col1,row1):
-        self.frame1 = tk.Frame(self.root, width = 20,height= 250)
+        self.frame1 = tk.Frame(self.frame, width = 20,height= 250)
         self.frame1.grid(row=row1,column=col1)
 
     def horizontalspacer(self,col1,row1):
-        self.frame1 = tk.Frame(self.root, width = 400,height= 20)
+        self.frame1 = tk.Frame(self.frame, width = 400,height= 20)
         self.frame1.grid(row=row1,column=col1)
 
     #
@@ -73,6 +77,29 @@ class main:
             command = partial(self.load, name)
         ).pack(side='left')
         tk.Button(innerframe, text='⚙', command = partial(self.config, name)).pack(side='right')
+
+    def add_scrollbar(self):
+        self.canvas = tk.Canvas(self.root, borderwidth=0, width=1050,height=740)
+        self.frame = tk.Frame(self.canvas)
+        self.vsb = tk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.vsb.set)
+
+        self.vsb.pack(side="right", fill="y")
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.canvas.create_window(
+            (4,4),
+            window=self.frame,
+            anchor="nw",
+            tags="self.frame")
+
+        self.frame.bind("<Configure>", self.onFrameConfigure)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def onFrameConfigure(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def load(self, name):
         if name == 'Tetris':
