@@ -5,6 +5,7 @@ import imgtocheck.imgtocheck as imgtocheck
 import snake.snake as snake
 import displayboard.displayboard as DisplayBoard
 import giftocheck.giftocheck as giftocheck
+import rubiks_cube.cube as cube
 from functools import partial
 import json
 import PIL.Image
@@ -26,6 +27,7 @@ class main:
         self.mainframe(0,1)
         self.mainframe(1,1)
         self.mainframe(2,1)
+        self.mainframe(0,2)
 
         self.imagelabel(0, 'Tetris', "tetris/Tetrislogo.png")
         self.imagelabel(1, 'Minesweeper', "tetris/Tetrislogo.png")
@@ -33,6 +35,7 @@ class main:
         self.imagelabel(3, 'Imgtocheck', "tetris/Tetrislogo.png")
         self.imagelabel(4, 'Display Board', "tetris/Tetrislogo.png")
         self.imagelabel(5, 'Giftocheck', "tetris/Tetrislogo.png")
+        self.imagelabel(6, "Rubik's cube", "tetris/Tetrislogo.png")
 
         self.root.mainloop()
 
@@ -126,6 +129,11 @@ class main:
             self.root.destroy()
             giftocheck.giftocheck()
             main()
+        if name == "Rubik's cube":
+            self.root.destroy()
+            cube.cube()
+            main()
+
     def config(self, name):
         if name == 'Minesweeper':
             minesweeper.config()
