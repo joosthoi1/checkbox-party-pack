@@ -10,6 +10,7 @@ class cube:
         self.cube_frame = tk.Frame(self.root)
         self.grid = gc.grid_reverse(12,9, root=self.cube_frame, do_title=False)
         self.cube_frame.grid(row=0,column=0)
+        self.destroy_empty()
 
         self.button_frame = tk.Frame(self.root)
 
@@ -21,6 +22,7 @@ class cube:
 
         self.cube_buttons_frame.grid(row=2,column=0)
         self.cube2_frame.grid(row=1, column=1)
+        self.previous = 'R'
         self.selected = 'F'
 
         self.create_buttons()
@@ -29,6 +31,19 @@ class cube:
         self.list_to_checks()
 
         self.root.mainloop()
+
+    def destroy_empty(self):
+        to_destroy = [
+            0,1,2, 6,7,8, 9,10,11,
+            12,13,14, 18,19,20, 21,22,23,
+            24,25,26, 30,31,32, 33,34,35,
+            72,73,74, 78,79,80, 81,82,83,
+            84,85,86, 90,91,92, 93,94,95,
+            96,97,98, 102,103,104,105,106,107
+        ]
+
+        for i in to_destroy:
+            self.grid.boxlist[i].destroy()
 
     def create_buttons(self):
         tk.Button(
@@ -265,12 +280,23 @@ class cube:
             count_x = 0
             count_y = 0
             for i in self.lists.sides[side]:
-                self.grid.boxlist[
-                    self.grid.coords(x + count_x, y + count_y)
-                ].configure(
-                    bg = i,
-                    fg = i
-                )
+                if side == self.selected:
+                    self.grid.boxlist[
+                        self.grid.coords(x + count_x, y + count_y)
+                    ].configure(
+                        bg = i,
+                        fg = i,
+                        state = 'normal'
+                    )
+                else:
+                    self.grid.boxlist[
+                        self.grid.coords(x + count_x, y + count_y)
+                    ].configure(
+                        bg = i,
+                        fg = i,
+                        disabledforeground = i,
+                        state = 'disabled'
+                    )
                 count_x += 1
                 if count_x == 3:
                     count_y += 1
@@ -298,6 +324,7 @@ class cube:
                 if count_x == 3:
                     count_y += 1
                     count_x = 0
+
 
 
 
