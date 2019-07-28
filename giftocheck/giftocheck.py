@@ -3,7 +3,6 @@ from PIL import Image
 import numpy as np
 import gridcreation as gc
 import tkinter as tk
-import time
 import json
 
 
@@ -27,13 +26,11 @@ class giftocheck:
 
         self.frames = []
         f = imgtocheck.imgtocheck()
-        start = time.time()
         for i in range(self.image.n_frames):
             x = self.contents['x']
             y = self.contents['y']
             self.frames.append(f.init(self.image.convert('RGB'), x, y))
             self.image.seek(i)
-        print(time.time()-start)
 
 
         self.grid = gc.grid_reverse(
@@ -113,7 +110,8 @@ class config:
         tk.Button(self.root,text='randomize all',command=partial(self.randomize, 'all')).grid(row = 5, column=0,sticky='w')
 
         tk.Button(self.root,text='done',command=self.done).grid(row = 5, column=2,sticky='e')
-        self.root.mainloop()
+        self.root.wait_window()
+
     def randomize(self, button):
         import random
         if button == "x":

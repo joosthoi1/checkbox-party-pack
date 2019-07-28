@@ -7,40 +7,59 @@ import displayboard.displayboard as DisplayBoard
 import giftocheck.giftocheck as giftocheck
 import rubiks_cube.cube as cube
 from functools import partial
+import pypresence
+import threading
 import json
 import PIL.Image
 import PIL.ImageTk
+import time
 
+class GameError(Exception):
+    pass
 
 class main:
     def __init__(self):
-        self.root = tk.Tk()
-        self.add_scrollbar()
+            client_id = '605045493592227860'
+            self.RPC = pypresence.Presence(client_id)
+            self.RPC.connect()
 
-        self.framelist = []
-        self.innerframelist = []
-        self.imglist = []
-
-        self.mainframe(0,0)
-        self.mainframe(1,0)
-        self.mainframe(2,0)
-        self.mainframe(0,1)
-        self.mainframe(1,1)
-        self.mainframe(2,1)
-        self.mainframe(0,2)
-
-        self.imagelabel(0, 'Tetris', "tetris/Tetrislogo.png")
-        self.imagelabel(1, 'Minesweeper', "tetris/Tetrislogo.png")
-        self.imagelabel(2, 'Snake', "tetris/Tetrislogo.png")
-        self.imagelabel(3, 'Imgtocheck', "tetris/Tetrislogo.png")
-        self.imagelabel(4, 'Display Board', "tetris/Tetrislogo.png")
-        self.imagelabel(5, 'Giftocheck', "tetris/Tetrislogo.png")
-        self.imagelabel(6, "Rubik's cube", "tetris/Tetrislogo.png")
-
-        self.root.mainloop()
+            details = "In menu:"
+            state = "Game launcher"
+            self.RPC.update(details = details, state = state)
+            
+            self.main_loop()
 
 
+    def main_loop(self):
+        while True:
+            self.root = tk.Tk()
+            self.add_scrollbar()
 
+            self.framelist = []
+            self.innerframelist = []
+            self.imglist = []
+
+            self.mainframe(0,0)
+            self.mainframe(1,0)
+            self.mainframe(2,0)
+            self.mainframe(0,1)
+            self.mainframe(1,1)
+            self.mainframe(2,1)
+            self.mainframe(0,2)
+
+            self.imagelabel(0, 'Tetris', "tetris/Tetrislogo.png")
+            self.imagelabel(1, 'Minesweeper', "tetris/Tetrislogo.png")
+            self.imagelabel(2, 'Snake', "tetris/Tetrislogo.png")
+            self.imagelabel(3, 'Imgtocheck', "tetris/Tetrislogo.png")
+            self.imagelabel(4, 'Display Board', "tetris/Tetrislogo.png")
+            self.imagelabel(5, 'Giftocheck', "tetris/Tetrislogo.png")
+            self.imagelabel(6, "Rubik's Cube", "tetris/Tetrislogo.png")
+
+            self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+            self.root.mainloop()
+
+    def on_close(self):
+        exit(0)
 
     def mainframe(self, col, row):
         col *= 2
@@ -105,36 +124,39 @@ class main:
         self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def load(self, name):
+        self.root.destroy()
+
+        details = "In game:"
+        state = name
+        self.RPC.update(details = details, state = state)
+
         if name == 'Tetris':
-            self.root.destroy()
             tetris.tetris()
-            main()
-        if name == 'Minesweeper':
-            self.root.destroy()
+        elif name == 'Minesweeper':
             minesweeper.minesweeper()
-            main()
-        if name == 'Snake':
-            self.root.destroy()
+        elif name == 'Snake':
             snake.snake()
-            main()
-        if name == 'Imgtocheck':
-            self.root.destroy()
+        elif name == 'Imgtocheck':
             imgtocheck.imgtocheck()
-            main()
-        if name == 'Display Board':
-            self.root.destroy()
+        elif name == 'Display Board':
             DisplayBoard.board()
-            main()
-        if name == 'Giftocheck':
-            self.root.destroy()
+        elif name == 'Giftocheck':
             giftocheck.giftocheck()
-            main()
-        if name == "Rubik's cube":
-            self.root.destroy()
+        elif name == "Rubik's Cube":
             cube.cube()
-            main()
+        else:
+            raise GameError("Game was not found")
+
+        details = "In menu:"
+        state = "Game launcher"
+        self.RPC.update(details = details, state = state)
+
 
     def config(self, name):
+        details = "In menu:"
+        state = f'{name} config'
+        self.RPC.update(details = details, state = state)
+
         if name == 'Minesweeper':
             minesweeper.config()
         if name == 'Snake':
@@ -145,6 +167,13 @@ class main:
             DisplayBoard.config()
         if name == 'Giftocheck':
             giftocheck.config()
+
+        details = "In menu:"
+        state = "Game launcher"
+        self.RPC.update(details = details, state = state)
+
+
+
 
 
 if __name__ == '__main__':

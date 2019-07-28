@@ -211,7 +211,8 @@ class config:
         tk.Button(self.root,text='randomize',command=partial(self.randomize, 'bombs'),padx=10).grid(row = 2, column=2,sticky='e')
         tk.Button(self.root,text='randomize all',command=partial(self.randomize, 'all')).grid(row = 3, column=0,sticky='e')
         tk.Button(self.root,text='done',command=self.done).grid(row = 3, column=2,sticky='e')
-        self.root.mainloop()
+        self.root.wait_window()
+
     def randomize(self, button):
         import random
         if button == "x":
