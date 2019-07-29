@@ -55,6 +55,7 @@ class snake:
                             needfruit = False
                             break
                 tick = 0
+
                 try:
                     self.grid1.boxlist[self.grid1.coords(x, y)].select()
                     self.grid1.boxlist[self.grid1.coords(x, y)].configure(foreground='green',bg='light gray')
@@ -67,6 +68,11 @@ class snake:
                     snake_body.pop(-1)
                 else:
                     snake_body.insert(0, self.grid1.coords(x, y))
+
+                if snake_body[0] in snake_body[1:]:
+                    self.dead(bodylength)
+                    return
+
                 if snake_body[0] == fruitplace:
                     bodylength += 1
                     needfruit = True
@@ -102,10 +108,7 @@ class snake:
                         self.dead(bodylength)
                     else:
                         y =self.grid1.numbery
-                if snake_body[0] in snake_body[1:]:
-                    if snake_body[1] in snake_body[1:]:
-                        self.dead(bodylength)
-                        return
+
 
             tick += 1
 
