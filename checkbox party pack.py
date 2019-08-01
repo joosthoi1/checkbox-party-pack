@@ -26,7 +26,7 @@ class main:
             details = "In menu:"
             state = "Game launcher"
             self.RPC.update(details = details, state = state)
-            
+
             self.main_loop()
 
 

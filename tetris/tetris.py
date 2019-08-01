@@ -51,6 +51,7 @@ class tetris:
         self.frame = 0
         self.groundcount = 0
         self.main()
+        self.root.mainloop()
 
     def down_all(self, event=None):
         self.unload()
