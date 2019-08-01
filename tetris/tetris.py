@@ -1,9 +1,9 @@
 from gridcreation import grid_reverse as grid
-from tkinter import IntVar
+import tkinter as tk
 import tetris.holdcoords as holdcoords
 import time
-import keyboard
 import random
+from tkinter import messagebox
 
 class tetris:
     def __init__(self):
@@ -22,18 +22,45 @@ class tetris:
             i.configure(bg=self.bgcolor)
         self.nextblocksetup()
         self.colordict = {
-        'block_cube':'gold',
-        'block_s':'chartreuse2',
-        'block_s_2':'red2',
-        'block_l':'SlateBlue1',
-        'block_l_2':'dark orange',
-        'block_i':'cyan',
-        'block_t':'magenta2',
+            'block_cube':'gold',
+            'block_s':'chartreuse2',
+            'block_s_2':'red2',
+            'block_l':'SlateBlue1',
+            'block_l_2':'dark orange',
+            'block_i':'cyan',
+            'block_t':'magenta2',
         }
         self.loaded = []
-        self.root.after(2, self.main)
-        self.root.mainloop()
-    def holdblock(self):
+
+        self.root.focus_force()
+        self.root.bind('<Left>', self.moveleft)
+        self.root.bind('a', self.moveleft)
+        self.root.bind('<Right>', self.moveright)
+        self.root.bind('d', self.moveright)
+        self.root.bind('<Down>', self.movedown)
+        self.root.bind('s', self.movedown)
+        self.root.bind('q', self.rotatel)
+        self.root.bind('e', self.rotater)
+        self.root.bind('<space>', self.holdblock)
+        self.root.bind('<Up>', self.down_all)
+        self.root.bind('w', self.down_all)
+
+
+        self.createblock()
+        self.load()
+        self.frame = 0
+        self.groundcount = 0
+        self.main()
+
+    def down_all(self, event=None):
+        self.unload()
+        for i in range(self.grid1.numbery):
+            self.movedown()
+        self.load()
+        self.groundify()
+
+    def holdblock(self, event=None):
+        self.unload()
         if not self.holdlimit:
             if not self.holding:
                 self.holding = self.blocktype
@@ -42,13 +69,13 @@ class tetris:
             else:
                 self.customunload(holdcoords.holdcoords[self.holding])
                 blockdict = {
-                'block_cube':[[5, 2], [5, 1], [6, 2], [6, 1]],
-                'block_s':[[6, 2], [5, 2], [4, 1], [5, 1]],
-                'block_s_2':[[4, 2], [5, 2],[6, 1],[5, 1]],
-                'block_l':[[4, 2], [4, 1],[6, 1],[5, 1]],
-                'block_l_2':[[6, 2], [4, 1], [6, 1], [5, 1]],
-                'block_i':[[4, 1], [7, 1], [6, 1], [5, 1]],
-                'block_t':[[4, 1], [6, 1],[5, 2], [5, 1]],
+                    'block_cube':[[5, 2], [5, 1], [6, 2], [6, 1]],
+                    'block_s':[[6, 2], [5, 2], [4, 1], [5, 1]],
+                    'block_s_2':[[4, 2], [5, 2],[6, 1],[5, 1]],
+                    'block_l':[[4, 2], [4, 1],[6, 1],[5, 1]],
+                    'block_l_2':[[6, 2], [4, 1], [6, 1], [5, 1]],
+                    'block_i':[[4, 1], [7, 1], [6, 1], [5, 1]],
+                    'block_t':[[4, 1], [6, 1],[5, 2], [5, 1]],
                 }
 
                 self.holding, self.blocktype = self.blocktype, self.holding
@@ -56,6 +83,7 @@ class tetris:
                 self.curcolor = self.colordict[self.blocktype]
             self.customload(holdcoords.holdcoords[self.holding], self.colordict[self.holding])
             self.holdlimit += 1
+        self.load()
 
 
     def nextblocksetup(self):
@@ -72,13 +100,15 @@ class tetris:
                 y += 1
         for i in holdcoords.nextcoords:
             self.nextlist.append(random.choice(list(i)))
-#        self.customload()
+
     def customload(self, loadlist, color):
         for i in loadlist:
             self.boxlist[self.coords(i)].configure(bg = color)
+
     def customunload(self, loadlist):
         for i in loadlist:
             self.boxlist[self.coords(i)].configure(bg = self.bgcolor)
+
     def varnaming(self):
         self.root = self.grid1.root
         self.boxlist = self.grid1.boxlist
@@ -87,86 +117,59 @@ class tetris:
         self.numbery = self.grid1.numbery
         self.numberx = self.grid1.numberx
         self.varlist = self.grid1.varlist
+
     def main(self):
-        self.createblock()
-        self.load()
-        frame = 0
-        self.groundcount = 0
-        while 1:
-            try:
-                self.root.update()
-            except:
-                return
+        if self.frame == 10:
             self.unload()
-            if keyboard.is_pressed('left') or keyboard.is_pressed('a'):
-                self.moveleft()
-            if keyboard.is_pressed('right') or keyboard.is_pressed('d'):
-                self.moveright()
-            if keyboard.is_pressed('down') or keyboard.is_pressed('s'):
-                self.movedown()
-            if keyboard.is_pressed('q'):  # if key 'q' is pressed
-                self.rotatel()
-            if keyboard.is_pressed('e'):
-                self.rotater()
-#            if keyboard.is_pressed('up') or keyboard.is_pressed('s'):  # dev
-#                self.unload()
-#                self.moveup()
-#                self.load()
-            if keyboard.is_pressed('space'):
-                self.holdblock()
-            if keyboard.is_pressed('up') or keyboard.is_pressed('w'):
-                self.unload()
-                for i in range(self.grid1.numbery):
-                    self.movedown()
-                self.load()
-                self.groundify()
+            self.movedown()
             self.load()
-            time.sleep(0.13)
-            if frame == 5:
-                self.unload()
-                self.movedown()
-                self.load()
-                frame = 0
-            frame += 1
-            if self.groundcount >= 4:
-                self.groundify()
-            self.checkclearline()
+            self.frame = 0
+        self.frame += 1
+        if self.groundcount >= 4:
+            self.groundify()
         self.checkclearline()
+        self.root.after(40, self.main)
 
     def loadgrd(self):
         for i in self.groundlist:
             coord = self.coords(i)
             color = self.groundcolor[coord]
             self.boxlist[coord].configure(bg=color)
+
     def unloadgrd(self):
         for i in self.groundlist:
             coord = self.coords(i)
             self.boxlist[coord].configure(bg=self.bgcolor)
+
     def groundify(self):
         self.groundcount = 0
-
         self.groundlist = self.groundlist + [(i) for i in self.loaded]
         for i in self.loaded:
             self.groundcolor[self.coords(i)] = self.curcolor
         self.createblock()
         self.load()
+
     def createblock(self):
         self.holdlimit = 0
         blockdict = {
-        'block_cube':[[5, 2], [5, 1], [6, 2], [6, 1]],
-        'block_s':[[6, 2], [5, 2], [4, 1], [5, 1]],
-        'block_s_2':[[4, 2], [5, 2],[6, 1],[5, 1]],
-        'block_l':[[4, 2], [4, 1],[6, 1],[5, 1]],
-        'block_l_2':[[6, 2], [4, 1], [6, 1], [5, 1]],
-        'block_i':[[4, 1], [7, 1], [6, 1], [5, 1]],
-        'block_t':[[4, 1], [6, 1],[5, 2], [5, 1]],
+            'block_cube':[[5, 2], [5, 1], [6, 2], [6, 1]],
+            'block_s':[[6, 2], [5, 2], [4, 1], [5, 1]],
+            'block_s_2':[[4, 2], [5, 2],[6, 1],[5, 1]],
+            'block_l':[[4, 2], [4, 1],[6, 1],[5, 1]],
+            'block_l_2':[[6, 2], [4, 1], [6, 1], [5, 1]],
+            'block_i':[[4, 1], [7, 1], [6, 1], [5, 1]],
+            'block_t':[[4, 1], [6, 1],[5, 2], [5, 1]],
         }
 
         self.loaded = []
         self.blocktype = self.nextlist[0]
         self.curcolor = self.colordict[self.blocktype]
-        for i in blockdict[self.blocktype]:
-            self.loaded.append(i)
+        if not any(i in self.groundlist for i in blockdict[self.blocktype]):
+            for i in blockdict[self.blocktype]:
+                self.loaded.append(i)
+        else:
+            self.end()
+            return
 
         nextcoords = holdcoords.nextcoords
         for counter, i in enumerate(self.nextlist):
@@ -176,9 +179,16 @@ class tetris:
         for counter, i in enumerate(self.nextlist):
             self.customload(nextcoords[counter][i], self.colordict[i])
 
+    def end(self):
+        messagebox1 = tk.messagebox.askquestion('Game Over', f'Game Over\nWould you like to play again?')
+        if messagebox1 == 'yes':
+            self.root.destroy()
+            tetris()
+        else:
+            self.root.destroy()
 
-
-    def rotatel(self):
+    def rotatel(self, event=None):
+        self.unload()
         if not self.blocktype == 'block_cube':
             templist = []
             px = self.loaded[3][0]
@@ -190,7 +200,10 @@ class tetris:
             collision = any(i in self.groundlist for i in templist)
             if not boundingtestx and not boundingtesty and not collision:
                 self.loaded = templist
-    def rotater(self):
+        self.load()
+
+    def rotater(self, event=None):
+        self.unload()
         if not self.blocktype == 'block_cube':
             templist = []
             px = self.loaded[3][0]
@@ -202,17 +215,21 @@ class tetris:
             collision = any(i in self.groundlist for i in templist)
             if not boundingtestx and not boundingtesty and not collision:
                 self.loaded = templist
+        self.load()
 
     def load(self):
         for i in self.loaded:
             coord = self.coords(i)
             self.boxlist[coord].configure(bg=self.curcolor)
+
+
     def unload(self):
         for i in self.loaded:
             coord = self.coords(i)
             self.boxlist[coord].configure(bg=self.bgcolor)
 
-    def movedown(self):
+    def movedown(self, event=None):
+        self.unload()
         ground1 = [list(i) for i in self.groundlist]
         for i in range(len(self.groundlist)):
             ground1[i][1] -= 1
@@ -222,6 +239,7 @@ class tetris:
                 self.groundcount = 0
         else:
             self.groundcount += 1
+        self.load()
 
     def mvground(self, linenmb):
         linelist = [[] for i in range(self.numbery)]
@@ -239,7 +257,8 @@ class tetris:
                     y[i][1] += 1
                     self.groundcolor[self.coords(y[i])] = tempcolor
 
-    def moveup(self):  # dev
+    def moveup(self, event=None):  # dev
+        self.unload()
         ground1 = [list(i) for i in self.groundlist]
         for i in range(len(self.groundlist)):
             ground1[i][1] += 1
@@ -248,23 +267,28 @@ class tetris:
             for i in range(len(self.loaded)):
 
                 self.loaded[i][1] -= 1
+        self.load()
 
-    def moveleft(self):
+    def moveleft(self, event=None):
+        self.unload()
         ground1 = [list(i) for i in self.groundlist]
         for i in range(len(self.groundlist)):
             ground1[i][0] += 1
         if not any(i[0] <= 1 for i in self.loaded) and not any(i in ground1 for i in self.loaded):
             for i in range(len(self.loaded)):
-
                 self.loaded[i][0] -= 1
+        self.load()
 
-    def moveright(self):
+
+    def moveright(self, event=None):
+        self.unload()
         ground1 = [list(i) for i in self.groundlist]
         for i in range(len(self.groundlist)):
             ground1[i][0] -= 1
         if not any(i[0] >= self.grid1.numberx for i in self.loaded) and not any(i in ground1 for i in self.loaded):
             for i in range(len(self.loaded)):
                 self.loaded[i][0] += 1
+        self.load()
 
     def checkclearline(self):
         templist = [[] for i in range(self.numbery)]
