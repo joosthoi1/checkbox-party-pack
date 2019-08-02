@@ -2,7 +2,6 @@ import gridcreation as grid
 import tkinter as tk
 from tkinter import messagebox as tkm
 from random import randint
-import keyboard
 import json
 class minesweeper:
     def __init__(self):
@@ -13,6 +12,7 @@ class minesweeper:
         x = contents['x']
         y = contents['y']
         self.grid2 = grid.grid(x, y, text = '  ', xoffset = 1, yoffset = 1, command=self.checkUncicked)
+        self.grid2.root.bind('<space>', self.space)
         self.flaglist = []
         for i in range(10000):
             self.flaglist.append(0)
@@ -164,16 +164,14 @@ class minesweeper:
                 tkm.showinfo('Game Over', 'YOU WIN!!!!')
                 self.recreate()
                 break
-            if (keyboard.is_pressed('space')):
-                self.flagcheckbox.invoke()
-                self.grid2.root.update()
-                while 1:
-                    if not (keyboard.is_pressed('space')):
-                        break
             try:
                 self.grid2.root.update()
             except:
                 return
+
+    def space(self, event=None):
+        self.flagcheckbox.invoke()
+        self.grid2.root.update()
 
     def recreate(self):
         self.label2text.set(self.bombnumber)
