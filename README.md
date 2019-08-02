@@ -36,5 +36,8 @@ pip install -r requirements.txt
 py checkbox\ party\ pack.py
 ```
 Notice you have to have above python 3.6  
-  
-By default Checkbox Party Pack enables discord rich presence, you can turn this off in settings > Discord rich presence
+
+
+By default Checkbox Party Pack enables discord rich presence, you can turn this off in settings > Discord rich presence  
+Thanks to all the help over at https://discord.gg/engineerman  
+Any questions can be asked over discord at that server or in private @joosthoi1#0460 or by email
