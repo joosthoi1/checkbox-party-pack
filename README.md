@@ -27,8 +27,6 @@ if name == 'App name':
 note: Make sure to import your application.
 note: name is the name you gave your app in imagelabel
 
-#### You might need to put gridcreation.py in each game folder separately, or put it in you python's lib folder (usually this isn't necessary)
-
 If you want to play this, type next in the command line:
 ```
 python -m venv venv
@@ -37,4 +35,6 @@ source venv/bin/activate     // this is if you have UNIX like systems
 pip install -r requirements.txt
 py checkbox\ party\ pack.py
 ```
-Notice you have to have above python 3.6
+Notice you have to have above python 3.6  
+  
+By default Checkbox Party Pack enables discord rich presence, you can turn this off in settings > Discord rich presence

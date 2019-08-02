@@ -19,13 +19,17 @@ class GameError(Exception):
 
 class main:
     def __init__(self):
-            client_id = '605045493592227860'
-            self.RPC = pypresence.Presence(client_id)
-            self.RPC.connect()
+            with open("settings.json", 'r') as file:
+                settings = json.loads(file.read())
 
-            details = "In menu:"
-            state = "Game launcher"
-            self.RPC.update(details = details, state = state)
+            if settings['pypresence']:
+                client_id = '605045493592227860'
+                self.RPC = pypresence.Presence(client_id)
+                self.RPC.connect()
+
+                details = "In menu:"
+                state = "Game launcher"
+                self.RPC.update(details = details, state = state)
 
             self.main_loop()
 
@@ -33,6 +37,26 @@ class main:
     def main_loop(self):
         while True:
             self.root = tk.Tk()
+
+            menubar = tk.Menu(self.root)
+
+            self.presence_var = tk.BooleanVar()
+            with open("settings.json", 'r') as file:
+                settings = json.loads(file.read())
+            self.presence_var.set(settings['pypresence'])
+
+
+            settingsmenu = tk.Menu(menubar, tearoff=0)
+            settingsmenu.add_checkbutton(
+                label="Discord rich presence",
+                variable=self.presence_var,
+                command = self.presence_menu
+            )
+
+            menubar.add_cascade(label="Settings", menu=settingsmenu)
+
+            self.root.config(menu=menubar)
+
             self.add_scrollbar()
 
             self.framelist = []
@@ -60,6 +84,27 @@ class main:
 
     def on_close(self):
         exit(0)
+
+    def presence_menu(self):
+        with open("settings.json", 'r') as file:
+            settings = json.loads(file.read())
+        settings['pypresence'] = self.presence_var.get()
+        self.presence = settings['pypresence']
+        with open("settings.json", 'w+') as file:
+            file.write(json.dumps(settings, indent = 4))
+        if self.presence:
+            if not hasattr(self, 'RPC'):
+                client_id = '605045493592227860'
+                self.RPC = pypresence.Presence(client_id)
+
+            self.RPC.connect()
+
+            details = "In menu:"
+            state = "Game launcher"
+            self.RPC.update(details = details, state = state)
+        else:
+            self.RPC.clear()
+
 
     def mainframe(self, col, row):
         col *= 2
@@ -128,7 +173,8 @@ class main:
 
         details = "In game:"
         state = name
-        self.RPC.update(details = details, state = state)
+        if self.presence:
+            self.RPC.update(details = details, state = state)
 
         if name == 'Tetris':
             tetris.tetris()
@@ -149,13 +195,15 @@ class main:
 
         details = "In menu:"
         state = "Game launcher"
-        self.RPC.update(details = details, state = state)
+        if self.presence:
+            self.RPC.update(details = details, state = state)
 
 
     def config(self, name):
         details = "In menu:"
         state = f'{name} config'
-        self.RPC.update(details = details, state = state)
+        if self.presence:
+            self.RPC.update(details = details, state = state)
 
         if name == 'Minesweeper':
             minesweeper.config()
@@ -170,7 +218,8 @@ class main:
 
         details = "In menu:"
         state = "Game launcher"
-        self.RPC.update(details = details, state = state)
+        if self.presence:
+            self.RPC.update(details = details, state = state)
 
 
 
