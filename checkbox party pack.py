@@ -44,6 +44,7 @@ class main:
             with open("settings.json", 'r') as file:
                 settings = json.loads(file.read())
             self.presence_var.set(settings['pypresence'])
+            self.presence = settings['pypresence']
 
 
             settingsmenu = tk.Menu(menubar, tearoff=0)
@@ -72,12 +73,12 @@ class main:
             self.mainframe(0,2)
 
             self.imagelabel(0, 'Tetris', "tetris/Tetrislogo.png")
-            self.imagelabel(1, 'Minesweeper', "tetris/Tetrislogo.png")
-            self.imagelabel(2, 'Snake', "tetris/Tetrislogo.png")
+            self.imagelabel(1, 'Minesweeper', "minesweeper/minewsweeperlogo.png")
+            self.imagelabel(2, 'Snake', "snake/snakelogo.png")
             self.imagelabel(3, 'Imgtocheck', "tetris/Tetrislogo.png")
             self.imagelabel(4, 'Display Board', "tetris/Tetrislogo.png")
             self.imagelabel(5, 'Giftocheck', "tetris/Tetrislogo.png")
-            self.imagelabel(6, "Rubik's Cube", "tetris/Tetrislogo.png")
+            self.imagelabel(6, "Rubik's Cube", "rubiks_cube/rubikslogo.png")
 
             self.root.protocol("WM_DELETE_WINDOW", self.on_close)
             self.root.mainloop()
@@ -123,7 +124,7 @@ class main:
         self.frame1.grid(row=row1,column=col1)
 
     def horizontalspacer(self,col1,row1):
-        self.frame1 = tk.Frame(self.frame, width = 400,height= 20)
+        self.frame1 = tk.Frame(self.frame, width = 40,height= 20)
         self.frame1.grid(row=row1,column=col1)
 
     #
