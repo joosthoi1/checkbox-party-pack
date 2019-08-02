@@ -1,136 +1,150 @@
-from gridcreation import grid
-from random import randint
-from tkinter import messagebox as tkm
-import keyboard,time
-import tkinter as tk
+import gridcreation as gc
+from tkinter import messagebox
+import random
 import json
+import tkinter as tk
 
 class snake:
-
     def __init__(self):
         with open('snake/config.json') as file:
-            contents = json.loads(file.read())
-        x = contents['x']
-        y = contents['y']
-        self.tickspeed = contents['tickspeed']
-        self.deathonwall = contents['deathonwall']
-        self.grid1 = grid(x,y)
-        self.grid1.root.title('Snake')
-        self.main()
+            settings = json.loads(file.read())
 
-    def main(self):
-        y, x = int(self.grid1.numbery/2), 1
-        bodylength = 3
-        dir = 'Right'
-        dirrn = 'Right'
-        fruitneeded = False
-        snake_body = []
-        tick = 0
-        needfruit = True
-        while 1:
+        self.death_on_wall = settings['deathonwall']
+        self.tick_speed = int(settings['tickspeed'])
+        self.grid = gc.grid_reverse(settings['x'], settings['y'])
+        self.root = self.grid.root
 
-            if (keyboard.is_pressed('w') or keyboard.is_pressed('up')) and dirrn != 'Down':  # if key 'q' is pressed
-                dir = 'Up'
-            elif (keyboard.is_pressed('s') or keyboard.is_pressed('down')) and dirrn != 'Up':  # if key 'q' is pressed
-                dir = 'Down'
-            elif (keyboard.is_pressed('a') or keyboard.is_pressed('left')) and dirrn != 'Right':  # if key 'q' is pressed
-                dir = 'Left'
-            elif (keyboard.is_pressed('d') or keyboard.is_pressed('right')) and dirrn != 'Left':  # if key 'q' is pressed
-                dir = 'Right'
-            if tick == 3:
-                dirrn = dir
 
-                if needfruit:
-                    while 1:
-                        randcoordsx, randcoordsy = randint(1, self.grid1.numberx), randint(1, self.grid1.numbery)
-                        if self.grid1.coords(randcoordsx,randcoordsy) in snake_body:
-                            pass
-                        else:
-                            fruitplace = self.grid1.coords(randcoordsx,randcoordsy)
-                            try:
-                                self.grid1.boxlist[self.grid1.coords(randcoordsx,randcoordsy)].select()
-                                self.grid1.boxlist[self.grid1.coords(randcoordsx,randcoordsy)].configure(bg='red', fg='red')
-                            except:
-                                return
-                            needfruit = False
-                            break
-                tick = 0
+        self.root.focus_force()
+        self.setup()
 
-                try:
-                    self.grid1.boxlist[self.grid1.coords(x, y)].select()
-                    self.grid1.boxlist[self.grid1.coords(x, y)].configure(foreground='green',bg='light gray')
-                except:
+        self.root.bind("<Right>", self.right)
+        self.root.bind("d", self.right)
+        self.root.bind("<Left>", self.left)
+        self.root.bind("a", self.left)
+        self.root.bind("<Up>", self.up)
+        self.root.bind("w", self.up)
+        self.root.bind("<Down>", self.down)
+        self.root.bind("s", self.down)
+
+        self.loop()
+        self.root.mainloop()
+
+    def setup(self):
+        self.x = 0
+        self.y = self.grid.numbery//2
+        self.dir = "Right"
+        self.length = 3
+        self.body = []
+        self.need_fruit = True
+
+    def loop(self):
+        self.previous_dir = self.dir
+
+        if self.need_fruit:
+            while self.need_fruit:
+                randcoordsx = random.randint(1, self.grid.numberx)
+                randcoordsy = random.randint(1, self.grid.numbery)
+                if not self.grid.coords(randcoordsx,randcoordsy) in self.body:
+                    self.fruit_place = self.grid.coords(randcoordsx,randcoordsy)
+                    box = self.grid.boxlist[
+                        self.grid.coords(randcoordsx,randcoordsy)
+                    ]
+                    box.select()
+                    box.configure(bg='red', fg='red')
+
+                    self.need_fruit = False
+
+        if self.dir == 'Right':
+            self.x+=1
+            if self.x == self.grid.numberx+1:
+                if self.death_on_wall:
+                    self.dead(self.length)
                     return
-                if len(snake_body) >= bodylength:
-                    snake_body.insert(0, self.grid1.coords(x, y))
-                    self.grid1.boxlist[snake_body[-1]].deselect()
-                    self.grid1.boxlist[snake_body[-1]].configure(foreground='black')
-                    snake_body.pop(-1)
                 else:
-                    snake_body.insert(0, self.grid1.coords(x, y))
-
-                if snake_body[0] in snake_body[1:]:
-                    self.dead(bodylength)
+                    self.x = 1
+        if self.dir == 'Left':
+            self.x-=1
+            if self.x == 0:
+                if self.death_on_wall:
+                    self.dead(self.length)
                     return
-
-                if snake_body[0] == fruitplace:
-                    bodylength += 1
-                    needfruit = True
-                if dir == 'Right':
-                    x+=1
-                if dir == 'Left':
-                    x-=1
-                if dir == 'Up':
-                    y+=1
-                if dir == 'Down':
-                    y-=1
-                try:
-                    self.grid1.root.update()
-                except Exception:
-                    pass
-                if x == self.grid1.numberx+1 and dir == 'Right':
-                    if self.deathonwall:
-                        self.dead(bodylength)
-                    else:
-                        x= 1
-                if x == 0 and dir == 'Left':
-                    if self.deathonwall:
-                        self.dead(bodylength)
-                    else:
-                        x= self.grid1.numberx
-                if y == self.grid1.numbery+1 and dir == 'Up':
-                    if self.deathonwall:
-                        self.dead(bodylength)
-                    else:
-                        y = 1
-                if y == 0 and dir == 'Down':
-                    if self.deathonwall:
-                        self.dead(bodylength)
-                    else:
-                        y =self.grid1.numbery
+                else:
+                    self.x = self.grid.numberx
+        if self.dir == 'Up':
+            self.y-=1
+            if self.y == 0:
+                if self.death_on_wall:
+                    self.dead(self.length)
+                    return
+                else:
+                    self.y = self.grid.numbery
+        if self.dir == 'Down':
+            self.y+=1
+            if self.y == self.grid.numbery+1:
+                if self.death_on_wall:
+                    self.dead(self.length)
+                    return
+                else:
+                    self.y = 1
 
 
-            tick += 1
+        self.grid.boxlist[self.grid.coords(self.x, self.y)].select()
+        self.grid.boxlist[self.grid.coords(self.x, self.y)].configure(foreground='green',bg='light gray')
 
-            time.sleep(self.tickspeed)
-    def reload(self):
-        for i in self.grid1.boxlist:
-            i.deselect()
-            i.configure(bg='light gray')
+        if len(self.body) >= self.length:
+            self.body.insert(0, self.grid.coords(self.x, self.y))
+            if not self.body[0] == self.body[-1]:
+                body = self.grid.boxlist[self.body[-1]]
+                body.deselect()
+                body.configure(foreground='black')
+            self.body.pop(-1)
+        else:
+            self.body.insert(0, self.grid.coords(self.x, self.y))
 
-        self.main()
-    def dead(self,bodylength):
-        messagebox1 = tk.messagebox.askquestion('Game Over', f'You died with a length of {bodylength}\nWould you like to play again?')
+        if len(self.body) >= 1:
+            if self.body[0] in self.body[1:]:
+                self.dead(self.length)
+                return
+
+        if self.body[0] == self.fruit_place:
+            self.length += 1
+            self.need_fruit = True
+
+        self.root.after(100, self.loop)
+
+    def right(self, event=None):
+        if not self.previous_dir == "Left":
+            self.dir = "Right"
+    def left(self, event=None):
+        if not self.previous_dir == "Right":
+            self.dir = "Left"
+    def up(self, event=None):
+        if not self.previous_dir == "Down":
+            self.dir = "Up"
+    def down(self, event=None):
+        if not self.previous_dir == "Up":
+            self.dir = "Down"
+
+    def dead(self, length):
+        messagebox1 = messagebox.askquestion('Game Over', f'You died with a length of {length}\nWould you like to play again?')
         if messagebox1 == 'yes':
             self.reload()
         else:
-            self.grid1.root.destroy()
+            self.grid.root.destroy()
+
+    def reload(self):
+        for i in self.grid.boxlist:
+            i.deselect()
+            i.configure(bg='light gray')
+
+        self.setup()
+        self.loop()
 
 class config:
 
     def __init__(self):
         from functools import partial
-
 
         with open('snake/config.json') as file:
             self.contents = json.loads(file.read())
@@ -141,7 +155,7 @@ class config:
         self.varwall = tk.BooleanVar()
         tk.Label(self.root,text='x').grid(row = 0, column=0,sticky='w')
         tk.Label(self.root,text='y').grid(row = 1, column=0,sticky='w')
-        tk.Label(self.root,text='tickspeed (s)').grid(row = 2, column=0,sticky='w')
+        tk.Label(self.root,text='tickspeed (ms)').grid(row = 2, column=0,sticky='w')
         tk.Label(self.root,text='Death on wall').grid(row = 3, column=0,sticky='w')
         tk.Entry(self.root,width=5,textvariable=self.varx).grid(row = 0, column=1,sticky='w')
         tk.Entry(self.root,width=5,textvariable=self.vary).grid(row = 1, column=1,sticky='w')
@@ -172,7 +186,7 @@ class config:
             self.varticks.set(random.randint(1,100)/1000)
     def done(self):
         if not self.varx.get() or not self.vary.get() or not self.varticks.get():
-            tk.messagebox.showwarning(message="Please make sure no value is 0")
+            messagebox.showwarning(message="Please make sure no value is 0")
 
         else:
             self.contents['x'] = self.varx.get()
@@ -185,4 +199,3 @@ class config:
 
 if __name__ == "__main__":
     snake()
-#    config()

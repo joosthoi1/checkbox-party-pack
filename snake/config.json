@@ -1,1 +1,1 @@
-{"x": 15, "y": 15, "tickspeed": 0.03, "deathonwall": false}
+{"x": 15, "y": 15, "tickspeed": 150.0, "deathonwall": true}
