@@ -1,194 +1,221 @@
-import gridcreation as grid
+import gridcreation as gc
 import tkinter as tk
-from tkinter import messagebox as tkm
-from random import randint
+from tkinter import messagebox
+import random
 import json
+import time
+from functools import partial
+ 
 class minesweeper:
     def __init__(self):
         with open('minesweeper/config.json') as file:
             contents = json.loads(file.read())
-        self.bombnumber = contents['bombs']
-        self.dead = '0'
+        self.root = tk.Tk()
+        self.flag_frame = tk.Frame(self.root)
+        self.mine_frame = tk.Frame(self.root)
+        self.flag_frame.pack()
+        self.mine_frame.pack()
+        self.bomb_number = contents['bombs']
         x = contents['x']
         y = contents['y']
-        self.grid2 = grid.grid(x, y, text = '  ', xoffset = 1, yoffset = 1, command=self.checkUncicked)
-        self.grid2.root.bind('<space>', self.space)
-        self.flaglist = []
-        for i in range(10000):
-            self.flaglist.append(0)
-        self.populate()
-
-
-        self.var_states1()
-
-
-    def populate(self):
-
-        self.flagboxvar, self.label2text = tk.IntVar(), tk.StringVar()
-        self.flagcheckbox = tk.Checkbutton(self.grid2.root, text = 'Flag', command=self.flagbox, var = self.flagboxvar)
-        self.flagcheckbox.grid(row=0,column=0)
-        label = tk.Label(self.grid2.root, text = '⚐')
-        label.grid(row=0, column = int(self.grid2.numberx/2)-1)
-        label2 = tk.Label(self.grid2.root, textvariable = self.label2text)
-        self.label2text.set(self.bombnumber)
-        label2.grid(row=0, column = int(self.grid2.numberx/2))
-
-    def flagbox(self):
-        if self.flagboxvar.get() == 1:
-            self.flag = 'on'
-        else:
-            self.flag = 'off'
-
-    def createfield(self):
-        self.bomblist = []
-        uncoordBomblist = []
-        for i in range(self.bombnumber):
-            while 1:
-                x = randint(1, self.grid2.numberx)
-                y = randint(1, self.grid2.numbery)
-                if not self.grid2.coords([x, y]) in self.bomblist:
-                    self.bomblist.append(self.grid2.coords([x, y]))
-                    uncoordBomblist.append([x, y])
-                    break
-                else:
-                    pass
-
-    def numbergeneration(self):
-
-        self.valuelist = []
-        sample = self.sample
-        for i in range(len(self.grid2.boxlist)):
-#            print(self.bomblist)
-            boxvalue = 0
-
-            if not i in self.bomblist:
-                for notI in range(8):
-                    try:
-                        if self.grid2.coords([self.grid2.uncoords(i)[0]+sample[notI][0], self.grid2.uncoords(i)[1]+sample[notI][1]]) in self.bomblist and self.grid2.uncoords(i)[1]+sample[notI][1] != self.grid2.numbery+1 and self.grid2.uncoords(i)[0]+sample[notI][0] != 0:
-                                boxvalue += 1
-                    except IndexError:
-                        pass
-                self.valuelist.append(boxvalue)
-    #            boxlist[i].configure(boxvalue)
-            else:
-                self.valuelist.append(0)
-
-    def checkUncicked(self):
-        self.flagsplaced = 0
-
-        colordict = {
-        0 : 'white smoke',
-        1 : 'royalblue1',
-        2 : 'green4',
-        3: 'red3',
-        4:'dark orchid',
-    	5:'hot pink',
-    	6:'yellow',
-    	7:'MediumPurple4',
-    	8:'turquoise1'
+        self.grid = gc.grid_reverse(x,y, root=self.mine_frame, text = '  ', do_title=False)
+        tk.Label(self.flag_frame,text='⚐').pack(side='left')
+        self.flag_num = tk.IntVar()
+        self.flag_num.set(self.bomb_number)
+        tk.Label(self.flag_frame,text='',textvariable = self.flag_num).pack(side='left')
+        self.flags = set()
+        self.colors = {
+            0:"white smoke",
+            1:"royalblue1",
+            2:"green4",
+            3:"red3",
+            4:"dark orchid",
+            5:"hot pink",
+            6:"yellow",
+            7:"MediumPurple4",
+            8:"turquoise1"
         }
-        again = False
-        if self.flag == 'off':
-            checkedlist = []
-            for i in range(len(self.grid2.varlist)):
-                if self.grid2.varlist[i].get() == 0:
+        self.place_bombs()
 
-                    self.flaglist[i] = 0
-                    self.grid2.boxlist[i].configure(bg='light gray')
+        self.bind()
+        self.generate_numbers()
+        self.root.mainloop()
 
-                if self.grid2.varlist[i].get() == 1 and self.flaglist[i] != 1:
+    def reload(self):
+        self.flag_num.set(self.bomb_number)
+        self.flags = set()
+        self.place_bombs()
 
-                    checkedlist.append(0)
-                    if i in self.bomblist:
-                        self.grid2.boxlist[i].configure(state='disabled', disabledforeground='black')
-                        self.dead = '1'
-                    else:
-                        self.grid2.boxlist[i].configure(text=self.valuelist[i], state='disabled', disabledforeground=colordict[self.valuelist[i]])
-                        if self.valuelist[i] == 0:
-
-                            for notI in range(8):
-                                try:
-#                                    print(self.grid2.coords([self.grid2.uncoords(i)[0]+self.sample[notI][0], self.grid2.uncoords(i)[1]+self.sample[notI][1]]))
-                                    if self.grid2.varlist[self.grid2.coords([self.grid2.uncoords(i)[0]+self.sample[notI][0], self.grid2.uncoords(i)[1]+self.sample[notI][1]])].get() == 0 and self.grid2.uncoords(i)[1]+self.sample[notI][1] != self.grid2.numbery+1 and self.grid2.uncoords(i)[0]+self.sample[notI][0] != 0:
-                                        self.grid2.varlist[self.grid2.coords([self.grid2.uncoords(i)[0]+self.sample[notI][0], self.grid2.uncoords(i)[1]+self.sample[notI][1]])].set(1)
-                                        self.grid2.boxlist[self.grid2.coords([self.grid2.uncoords(i)[0]+self.sample[notI][0], self.grid2.uncoords(i)[1]+self.sample[notI][1]])].configure(state='disabled', disabledforeground=colordict[self.valuelist[self.grid2.coords([self.grid2.uncoords(i)[0]+self.sample[notI][0], self.grid2.uncoords(i)[1]+self.sample[notI][1]])]])
-                                        again = True
-                                except IndexError as e:
-
-                                    pass
-                if len(checkedlist) == self.grid2.numberx*self.grid2.numbery-len(self.bomblist) and self. dead != '1':
-                    self.dead = '2'
-        if again:
-#            self.grid2.root.update()
-            self.checkUncicked()
-        if self.flag == 'on':
-            for i in range(len(self.grid2.varlist)):
-                if self.grid2.varlist[i].get() == 0:
-                    self.flaglist[i] = 0
-                    self.grid2.boxlist[i].configure(bg='light gray')
-
-                    self.label2text.set(self.bombnumber-self.flagsplaced)
-                if self.grid2.varlist[i].get() == 1 and self.grid2.boxlist[i]['state'] != 'disabled':
-                    self.flaglist[i] = 1
-                    self.grid2.boxlist[i].configure(bg='red')
-
-                self.flagsplaced = 0
-                for i in self.flaglist:
-                    if i == 1:
-                        self.flagsplaced += 1
-                self.label2text.set(self.bombnumber-self.flagsplaced)
-
-    def var_states1(self):
-
-        self.sample = [
-        [-1, 1], [0, 1], [1, 1],
-        [-1, 0],         [1, 0],
-        [-1, -1], [0, -1], [1, -1]
-        ]
-        self.createfield()
-    #    for i in bomblist:
-    #        boxlist[i].select()
-        self.numbergeneration()
-        self.flagbox()
-        while 1:
-
-            #self.checkUncicked()
-
-            if self.dead == '1':
-                self.dead = 0
-                tkm.showinfo('Game Over', 'You exploded into a million pieces :(')
-                self.recreate()
-                break
-            if self.dead == '2':
-                self.dead = 0
-                tkm.showinfo('Game Over', 'YOU WIN!!!!')
-                self.recreate()
-                break
-            try:
-                self.grid2.root.update()
-            except:
-                return
-
-    def space(self, event=None):
-        self.flagcheckbox.invoke()
-        self.grid2.root.update()
-
-    def recreate(self):
-        self.label2text.set(self.bombnumber)
-        self.clearall()
-        self.var_states1()
-
-    def clearall(self):
-        for i in self.grid2.boxlist:
+        self.bind()
+        self.generate_numbers()
+        for i in self.grid.boxlist:
             i.deselect()
-            i.configure(state='normal', bg='light gray', fg = 'black', text="  ")
+            i.config(state='normal', text= '  ', bg= 'light gray', activebackground= 'light gray')
+            self.root.update()
+        
+        
+    def reveal_board(self):
+        for c, i in enumerate(self.grid.boxlist):
+            text = self.value_list[c]
+            color = self.colors[text]
+            i.select()
+            i.config(bg='light gray', text = text, disabledforeground = color, state='disabled')
+            if c in self.bomb_list:
+                i.config(bg='black', disabledforeground = 'light gray')
+            if c in self.flags:
+                if c in self.bomb_list:
+                    i.config(bg='dark red')
+                else:
+                    i.config(bg='dim gray', disabledforeground = 'light gray')
+    def place_bombs(self):
+        self.bomb_list = set()
+        random_range = list(range(self.grid.numberx*self.grid.numbery))
+        self.unopened = set(random_range)
+        for i in range(self.bomb_number):
+            rand_num = random.choice(random_range)
+            self.bomb_list.add(rand_num)
+            random_range.remove(rand_num)
 
+    def generate_numbers(self):
+        y = self.grid.numbery
+        x = self.grid.numberx
+        self.value_list = []
+        for c, i in enumerate(self.grid.boxlist):
+            box_value = 0
+            ignore_top = (True if c - x < 0 else False)
+            ignore_bottom = (True if c + x >= x*y else False)
+            ignore_left = (True if c % x is 0 else False)
+            ignore_right = (True if (c+1) % x is 0 else False)
+            ignore_topright = ignore_top or ignore_right
+            ignore_topleft = ignore_top or ignore_left
+            ignore_bottomright = ignore_bottom or ignore_right
+            ignore_bottomleft = ignore_bottom or ignore_left
+            if not c in self.bomb_list:
+                if not ignore_top:
+                    if c - x in self.bomb_list:
+                        box_value += 1
+                if not ignore_left:
+                    if c - 1 in self.bomb_list:
+                        box_value += 1
+                if not ignore_right:
+                    if c + 1 in self.bomb_list:
+                        box_value += 1
+                if not ignore_bottom:
+                    if c + x in self.bomb_list:
+                        box_value += 1
+                if not ignore_topright:
+                    if (c+1) - x in self.bomb_list:
+                        box_value += 1
+                if not ignore_topleft:
+                    if (c-1) - x in self.bomb_list:
+                        box_value += 1
+                if not ignore_bottomright:
+                    if (c+1) + x in self.bomb_list:
+                        box_value += 1
+                if not ignore_bottomleft:
+                    if (c-1) + x in self.bomb_list:
+                        box_value += 1
+            self.value_list.append(box_value)
+                
+        
+    def right(self, box, event=None):
+        checkbox = self.grid.boxlist[box]
+        if not checkbox['state'] == 'disabled':
+            checkbox.toggle()
+            if box in self.flags:
+                self.flags.remove(box)
+                checkbox.config(bg = 'light gray')
+                self.flag_num.set(self.flag_num.get() + 1)
+            else:
+                self.flags.add(box)
+                checkbox.config(bg = 'red')
+                self.flag_num.set(self.flag_num.get() - 1)
+
+    def left(self, box, event=None):
+        checkbox = self.grid.boxlist[box]
+        if not checkbox['state'] == 'disabled':
+            if not box in self.flags:
+                if box in self.bomb_list:
+                    self.dead()
+                else:
+                    self.unopened.remove(box)
+                    text = self.value_list[box]
+                    color = self.colors[text]
+                    checkbox.config(text=text, state='disabled',disabledforeground=color)
+                    checkbox.select()
+                    if text == 0:
+                        self.open(box)
+                    if self.unopened == self.bomb_list:
+                        self.win()
+            else:
+                checkbox.deselect()
+
+    def dead(self):
+        self.reveal_board()
+        messagebox1 = messagebox.askquestion(
+            'Game Over', f'You exploded into a million pieces :(\nWould you like to play again?'
+        )
+        if messagebox1 == 'yes':
+            self.reload()
+        else:
+            self.root.destroy()
+
+    def win(self):
+        messagebox1 = messagebox.askquestion(
+            'Game Over', f'You won!\nWould you like to play again?'
+        )
+        if messagebox1 == 'yes':
+            self.reload()
+        else:
+            self.root.destroy()
+        
+    def open(self, c):
+        y = self.grid.numbery
+        x = self.grid.numberx
+        ignore_top = (True if c - x < 0 else False)
+        ignore_bottom = (True if c + x >= x*y else False)
+        ignore_left = (True if c % x is 0 else False)
+        ignore_right = (True if (c+1) % x is 0 else False)
+        ignore_topright = ignore_top or ignore_right
+        ignore_topleft = ignore_top or ignore_left
+        ignore_bottomright = ignore_bottom or ignore_right
+        ignore_bottomleft = ignore_bottom or ignore_left
+        boxes = set()
+        if not ignore_top:
+            boxes.add(c - x)
+        if not ignore_left:
+            boxes.add(c - 1)
+        if not ignore_right:
+            boxes.add(c + 1)
+        if not ignore_bottom:
+            boxes.add(c + x)
+        if not ignore_topright:
+            boxes.add((c+1) - x)
+        if not ignore_topleft:
+            boxes.add((c-1) - x)
+        if not ignore_bottomright:
+            boxes.add((c+1) + x)
+        if not ignore_bottomleft:
+            boxes.add((c-1) + x)
+        for i in boxes:
+            box = self.grid.boxlist[i]
+            if not box['state'] == 'disabled':
+                self.unopened.remove(i)
+                text = self.value_list[i]
+                color = self.colors[text]
+                box.config(text=text, state='disabled',bg='light gray',disabledforeground=color)
+                box.select()
+                if text == 0:
+                    self.open(i)
+    
+    def bind(self):
+        for c, i in enumerate(self.grid.boxlist):
+            i.bind("<Button-1>", partial(self.left, c))
+            i.bind("<Button-3>", partial(self.right, c))
+    
 class config:
 
     def __init__(self):
-        from functools import partial
-
-
         with open('minesweeper/config.json') as file:
             self.contents = json.loads(file.read())
         self.root = tk.Toplevel()
@@ -238,5 +265,5 @@ class config:
             self.root.destroy()
 
 if __name__ == "__main__":
-#    minesweeper()
-    config()
+    minesweeper()
+#    config()
