@@ -19,24 +19,24 @@ class GameError(Exception):
 
 class main:
     def __init__(self):
-            with open("settings.json", 'r') as file:
-                settings = json.loads(file.read())
+        with open("settings.json", 'r') as file:
+            settings = json.loads(file.read())
 
-            if settings['pypresence']:
-                client_id = '605045493592227860'
-                self.RPC = pypresence.Presence(client_id)
-                self.RPC.connect()
+        if settings['pypresence']:
+            client_id = '605045493592227860'
+            self.RPC = pypresence.Presence(client_id)
+            self.RPC.connect()
+            details = "In menu:"
+            state = "Game launcher"
+            self.RPC.update(details = details, state = state)
 
-                details = "In menu:"
-                state = "Game launcher"
-                self.RPC.update(details = details, state = state)
-
-            self.main_loop()
+        self.main_loop()
 
 
     def main_loop(self):
         while True:
             self.root = tk.Tk()
+            self.old_num = 0
 
             menubar = tk.Menu(self.root)
 
@@ -64,25 +64,49 @@ class main:
             self.innerframelist = []
             self.imglist = []
 
-            self.mainframe(0,0)
-            self.mainframe(1,0)
-            self.mainframe(2,0)
-            self.mainframe(0,1)
-            self.mainframe(1,1)
-            self.mainframe(2,1)
-            self.mainframe(0,2)
+            self.imagelabels = [
+                ('Tetris', "tetris/Tetrislogo.png"),
+                ('Minesweeper', "minesweeper/minewsweeperlogo.png"),
+                ('Snake', "snake/snakelogo.png"),
+                ('Imgtocheck', "tetris/Tetrislogo.png"),
+                ('Display Board', "tetris/Tetrislogo.png"),
+                ('Giftocheck', "tetris/Tetrislogo.png"),
+                ("Rubik's Cube", "rubiks_cube/rubikslogo.png")
+            ]
 
-            self.imagelabel(0, 'Tetris', "tetris/Tetrislogo.png")
-            self.imagelabel(1, 'Minesweeper', "minesweeper/minewsweeperlogo.png")
-            self.imagelabel(2, 'Snake', "snake/snakelogo.png")
-            self.imagelabel(3, 'Imgtocheck', "tetris/Tetrislogo.png")
-            self.imagelabel(4, 'Display Board', "tetris/Tetrislogo.png")
-            self.imagelabel(5, 'Giftocheck', "tetris/Tetrislogo.png")
-            self.imagelabel(6, "Rubik's Cube", "rubiks_cube/rubikslogo.png")
-
+            self.setup_frames()
+            self.on_resize(width = self.canvas.winfo_width())
+            
             self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+            self.canvas.bind("<Configure>", self.on_resize)
             self.root.mainloop()
 
+    def on_resize(self, event=None, width=None):
+        if event:
+            canvas_width = event.width
+            new_num = event.width // 319
+            self.canvas.itemconfig(self.canvas_frame, width = canvas_width)
+        else:
+            new_num = width // 319
+        if new_num == 0:
+                new_num = 1
+        if new_num != self.old_num:  
+            self.old_num = new_num
+            self.position_frames(new_num)
+            
+            
+
+    def position_frames(self, max_x):
+        x, y = 0, 0
+        for label in self.framelist:
+            self.move_frame(label, y, x)
+            x += 1
+            if x == max_x:
+                x = 0
+                y += 1
+            
+            
+    
     def on_close(self):
         exit(0)
 
@@ -106,63 +130,60 @@ class main:
         else:
             self.RPC.clear()
 
+    def move_frame(self, frame, row, col):
+        frame.grid(row=row, column=col)
+    
+    def setup_frames(self):
+        for i in self.imagelabels:
+            self.framelist.append(
+                tk.Frame(self.frame)
+            )
+            im = PIL.Image.open(i[1])
+            photo = PIL.ImageTk.PhotoImage(im)
+            self.imglist.append(photo)
+            cur_image = self.imglist[-1]
+            cur_frame = self.framelist[-1]
+            tk.Frame(cur_frame,width=10,).grid(row=0,column=0)
+            tk.Frame(cur_frame,width=10,).grid(row=0,column=2)
+            tk.Frame(cur_frame,height=10,).grid(row=0,column=0)
+            tk.Frame(cur_frame,height=10,).grid(row=4,column=0)
+            
+            tk.Label(cur_frame, text = i[0], font = ("Helvetica", "16")).grid(row=1,column=1)
+            
+            tk.Label(cur_frame, image = cur_image).grid(row=2,column=1)
 
-    def mainframe(self, col, row):
-        col *= 2
-        row *= 2
-        if col and not row:
-            self.verticalspacer(col - 1, row)
-        if row and not col:
-            self.horizontalspacer(col, row - 1)
-        self.framelist.append(
-        tk.Frame(self.frame)
-        )
-        self.framelist[-1].grid(row=row,column=col)
-
-    def verticalspacer(self,col1,row1):
-        self.frame1 = tk.Frame(self.frame, width = 20,height= 250)
-        self.frame1.grid(row=row1,column=col1)
-
-    def horizontalspacer(self,col1,row1):
-        self.frame1 = tk.Frame(self.frame, width = 40,height= 20)
-        self.frame1.grid(row=row1,column=col1)
-
-    #
-
-    def imagelabel(self, index, name, image):
-        tk.Label(self.framelist[index], text = name, font = ("Helvetica", "16")).pack()
-        im = PIL.Image.open(image)
-        photo = PIL.ImageTk.PhotoImage(im)
-
-        self.imglist.append(photo)
-        tk.Label(self.framelist[index], image = self.imglist[-1]).pack()
-
-        innerframe = tk.Frame(self.framelist[index], width=200)
-        innerframe.pack()
-        tk.Button(
-            innerframe,
-            text='start',
-            command = partial(self.load, name)
-        ).pack(side='left')
-        tk.Button(innerframe, text='⚙', command = partial(self.config, name)).pack(side='right')
-
+            innerframe = tk.Frame(cur_frame, width=200)
+            innerframe.grid(row=3,column=1)
+            tk.Button(
+                innerframe,
+                text='start',
+                command = partial(self.load, i[0])
+            ).pack(side='left')
+            tk.Button(innerframe, text='⚙', command = partial(self.config, i[0])).pack(side='right')
+        
     def add_scrollbar(self):
         self.canvas = tk.Canvas(self.root, borderwidth=0, width=1050,height=740)
-        self.frame = tk.Frame(self.canvas)
+        self.frame1 = tk.Frame(self.canvas)
         self.vsb = tk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
 
         self.vsb.pack(side="right", fill="y")
         self.canvas.pack(side="left", fill="both", expand=True)
-        self.canvas.create_window(
+        self.canvas_frame = self.canvas.create_window(
             (4,4),
-            window=self.frame,
-            anchor="nw",
-            tags="self.frame")
+            window=self.frame1,
+            anchor="n",
+            tags="self.frame1",
+        )
+        self.frame = tk.Frame(self.frame1)
+        self.frame.pack(side='top')
+       
 
         self.frame.bind("<Configure>", self.onFrameConfigure)
+        
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
+        
     def onFrameConfigure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
