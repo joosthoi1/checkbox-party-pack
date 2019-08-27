@@ -41,6 +41,9 @@ class imgtocheck:
         for y in self.resized:
             new_image.append([])
             for x in y:
-                mycolor = '#%02x%02x%02x' % (x[0], x[1], x[2])
+                if x[3] == 0:
+                    mycolor = "white"
+                else:
+                    mycolor = '#%02x%02x%02x' % (x[0], x[1], x[2])
                 new_image[-1].append(mycolor)
         return new_image

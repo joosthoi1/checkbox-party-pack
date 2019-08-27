@@ -29,7 +29,7 @@ class giftocheck:
         for i in range(self.image.n_frames):
             x = self.contents['x']
             y = self.contents['y']
-            self.frames.append(f.init(self.image.convert('RGB'), x, y))
+            self.frames.append(f.init(self.image.convert('RGBA'), x, y))
             self.image.seek(i)
 
 
