@@ -264,7 +264,7 @@ class config:
         if not self.varx.get() or not self.vary.get() or not self.varbombs.get():
             tk.messagebox.showwarning(message="Please make sure no value is 0")
 
-        elif self.varx.get() * self.vary.get() <= self.varbombs.get():
+        elif self.varx.get() * self.vary.get() - 8 <= self.varbombs.get():
             tk.messagebox.showwarning(message="Please make sure there's enough room for the bombs")
         else:
             self.contents['x'] = self.varx.get()
