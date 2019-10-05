@@ -5,7 +5,7 @@ import random
 import json
 import time
 from functools import partial
- 
+
 class minesweeper:
     def __init__(self):
         with open('minesweeper/config.json') as file:
@@ -35,25 +35,23 @@ class minesweeper:
             7:"MediumPurple4",
             8:"turquoise1"
         }
-        self.place_bombs()
-
+        #self.place_bombs()
+        self.bomb_list = set()
         self.bind()
-        self.generate_numbers()
+        #self.generate_numbers()
         self.root.mainloop()
 
     def reload(self):
         self.flag_num.set(self.bomb_number)
         self.flags = set()
-        self.place_bombs()
-
+        self.bomb_list = set()
         self.bind()
-        self.generate_numbers()
         for i in self.grid.boxlist:
             i.deselect()
             i.config(state='normal', text= '  ', bg= 'light gray', activebackground= 'light gray')
             self.root.update()
-        
-        
+
+
     def reveal_board(self):
         for c, i in enumerate(self.grid.boxlist):
             text = self.value_list[c]
@@ -67,10 +65,13 @@ class minesweeper:
                     i.config(bg='dark red')
                 else:
                     i.config(bg='dim gray', disabledforeground = 'light gray')
-    def place_bombs(self):
-        self.bomb_list = set()
+
+    def place_bombs(self, boxes, c):
+        boxes.add(c)
         random_range = list(range(self.grid.numberx*self.grid.numbery))
         self.unopened = set(random_range)
+        for i in boxes:
+            random_range.remove(i)
         for i in range(self.bomb_number):
             rand_num = random.choice(random_range)
             self.bomb_list.add(rand_num)
@@ -116,8 +117,9 @@ class minesweeper:
                     if (c-1) + x in self.bomb_list:
                         box_value += 1
             self.value_list.append(box_value)
-                
-        
+        print(self.value_list)
+
+
     def right(self, box, event=None):
         checkbox = self.grid.boxlist[box]
         if not checkbox['state'] == 'disabled':
@@ -133,6 +135,8 @@ class minesweeper:
 
     def left(self, box, event=None):
         checkbox = self.grid.boxlist[box]
+        if not self.bomb_list:
+            self.open(box)
         if not checkbox['state'] == 'disabled':
             if not box in self.flags:
                 if box in self.bomb_list:
@@ -168,7 +172,7 @@ class minesweeper:
             self.reload()
         else:
             self.root.destroy()
-        
+
     def open(self, c):
         y = self.grid.numbery
         x = self.grid.numberx
@@ -180,6 +184,7 @@ class minesweeper:
         ignore_topleft = ignore_top or ignore_left
         ignore_bottomright = ignore_bottom or ignore_right
         ignore_bottomleft = ignore_bottom or ignore_left
+
         boxes = set()
         if not ignore_top:
             boxes.add(c - x)
@@ -197,6 +202,12 @@ class minesweeper:
             boxes.add((c+1) + x)
         if not ignore_bottomleft:
             boxes.add((c-1) + x)
+
+        if not self.bomb_list:
+            self.place_bombs(boxes, c)
+            self.generate_numbers()
+            print(self.value_list)
+
         for i in boxes:
             box = self.grid.boxlist[i]
             if not box['state'] == 'disabled':
@@ -207,12 +218,14 @@ class minesweeper:
                 box.select()
                 if text == 0:
                     self.open(i)
-    
+        if self.unopened == self.bomb_list:
+            self.win()
+
     def bind(self):
         for c, i in enumerate(self.grid.boxlist):
             i.bind("<Button-1>", partial(self.left, c))
             i.bind("<Button-3>", partial(self.right, c))
-    
+
 class config:
 
     def __init__(self):
