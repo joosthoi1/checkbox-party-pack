@@ -117,8 +117,6 @@ class minesweeper:
                     if (c-1) + x in self.bomb_list:
                         box_value += 1
             self.value_list.append(box_value)
-        print(self.value_list)
-
 
     def right(self, box, event=None):
         checkbox = self.grid.boxlist[box]
@@ -206,7 +204,6 @@ class minesweeper:
         if not self.bomb_list:
             self.place_bombs(boxes, c)
             self.generate_numbers()
-            print(self.value_list)
 
         for i in boxes:
             box = self.grid.boxlist[i]
